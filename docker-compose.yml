@@ -1,0 +1,29 @@
+services:
+  matcheng:
+    build: .
+    image: matcheng-legacy
+    restart: unless-stopped
+    volumes:
+      - matcheng-output:/opt/matcheng/output
+    expose:
+      - "8080"
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - SITE_DOMAIN=${SITE_DOMAIN:-legacy.calit.online}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - matcheng
+
+volumes:
+  matcheng-output:
+  caddy-data:
+  caddy-config:

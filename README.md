@@ -23,6 +23,8 @@ ORDERS.DAT ──► MATCHENG (one COBOL program) ──► TRADES.DAT   trades
 | `run/RUNBATCH.sh` | Job script. Plays the role of the old MVS JCL and maps COBOL file names to paths through `DD_` variables |
 | `tools/gen_orders.py` | Generates synthetic order files |
 | `data/ORDERS.DAT` | Sample input: 10,000 orders |
+| `web/` | Intranet report viewer: lighttpd with shell/awk CGI scripts that read the batch files directly |
+| `deploy/` | Caddy (HTTPS) config and VM setup script |
 
 ## Run it
 
@@ -46,5 +48,16 @@ Generate a different input file:
 python3 tools/gen_orders.py --count 100000 --seed 7 --out data/ORDERS_100K.DAT
 ./run/RUNBATCH.sh data/ORDERS_100K.DAT
 ```
+
+## Report viewer (legacy UI)
+
+A 2002-style intranet page that shows the batch output: summary report, trades, rejects, order book and run history. **Submit New Batch Run** generates a new business day of orders and runs the batch.
+
+```sh
+docker build -t matcheng-legacy .
+docker run --rm -p 8080:8080 matcheng-legacy   # open http://localhost:8080
+```
+
+Deployed with `docker compose up -d`, which also starts Caddy for HTTPS on `$SITE_DOMAIN` (default `legacy.calit.online`).
 
 Return codes: `0` clean run, `4` completed with rejected records, `16` file error.
